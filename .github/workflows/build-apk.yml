@@ -1,0 +1,56 @@
+name: Build Android APK
+on:
+  push:
+    branches: [ main, master ]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Create Android Project and Inject HTML/CSS
+        run: |
+          # 1. Initialize a clean package.json
+          npm init -y
+          
+          # 2. Install Capacitor Core and CLI
+          npm install @capacitor/core @capacitor/cli
+          
+          # 3. Create a public folder for HTML/CSS and move files into it
+          mkdir www
+          cp index.html www/ 2>/dev/null || true
+          cp style.css www/ 2>/dev/null || true
+          cp *.jpg www/ 2>/dev/null || true
+          cp *.jpeg www/ 2>/dev/null || true
+          cp *.png www/ 2>/dev/null || true
+          
+          # 4. Initialize Capacitor Config pointing to www folder
+          npx cap init "SoloGram" "com.sologram.app" --web-dir=www --nopm
+          
+          # 5. Install Android platform and add it
+          npm install @capacitor/android
+          npx cap add android
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Build APK with Gradle
+        run: |
+          npx cap sync
+          cd android && ./gradlew assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: SoloGram-APK
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          
