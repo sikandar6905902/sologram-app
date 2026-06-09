@@ -1,0 +1,176 @@
+@import url('https://fonts.googleapis.com/css2?family=Ole&family=Plus+Jakarta+Sans:wght=300;400;500;600;700&display=swap');
+
+body {
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+    background: #000000 !important;
+    color: #ffffff;
+    overflow-x: hidden;
+    margin: 0;
+    padding: 0;
+}
+
+.app-custom-font, input, textarea, button, p, span, h2, h3, h4 {
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+}
+
+.app-main-bg {
+    background: #500307 !important;
+    background: radial-gradient(circle at center, #9e0712 0%, #5d0208 45%, #2a0003 80%, #150002 100%) !important;
+}
+
+/* Smooth Navigation/Page transitions with display block/none setup compatible */
+.app-page {
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(20px);
+    transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.3s ease-out;
+}
+
+.app-page.active-page {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0px);
+}
+
+.glassmorphism {
+    background: rgba(10, 5, 5, 0.6) !important;
+    backdrop-filter: blur(14px) !important;
+    -webkit-backdrop-filter: blur(14px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.06) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6) !important;
+}
+
+.text-only-matrix-card {
+    background: linear-gradient(145deg, rgba(229, 9, 20, 0.12), rgba(0, 0, 0, 0.5)) !important;
+    border: 1px solid rgba(229, 9, 20, 0.25) !important;
+    box-shadow: inset 0 0 20px rgba(229, 9, 20, 0.08), 0 12px 35px rgba(0, 0, 0, 0.7) !important;
+}
+
+.cyber-perspective-grid {
+    perspective: 1000px;
+}
+
+.premium-cyber-node {
+    position: relative;
+    cursor: pointer;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: rgba(15, 10, 11, 0.6);
+    overflow: hidden;
+    transform-style: preserve-3d;
+    transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), box-shadow 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), border-color 0.3s ease;
+}
+
+.premium-cyber-node::before {
+    content: ''; 
+    position: absolute; 
+    inset: 0; 
+    background: linear-gradient(135deg, rgba(229, 9, 20, 0.3) 0%, transparent 60%); 
+    opacity: 0; 
+    transition: opacity 0.3s ease; 
+    z-index: 2; 
+    pointer-events: none;
+}
+
+.premium-cyber-node:hover {
+    transform: scale(1.05) rotateX(4deg) rotateY(-3deg) translateZ(5px); 
+    border-color: rgba(229, 9, 20, 0.4); 
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.7), 0 0 15px rgba(229, 9, 20, 0.25);
+}
+
+.premium-cyber-node:hover::before { opacity: 1; }
+
+.cyber-text-node {
+    background: linear-gradient(135deg, rgba(20, 5, 7, 0.85), rgba(5, 5, 5, 0.95)) !important; 
+    border-left: 3px solid #E50914 !important;
+}
+
+.node-overlay-meta {
+    position: absolute; 
+    inset: 0; 
+    background: rgba(0,0,0,0.7); 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    gap: 12px; 
+    opacity: 0; 
+    transition: all 0.3s ease; 
+    z-index: 10;
+}
+.premium-cyber-node:hover .node-overlay-meta { opacity: 1; }
+
+#profile-lightbox-modal.active { opacity: 1; pointer-events: auto; }
+
+.lightbox-comments-wrapper {
+    background: rgba(0, 0, 0, 0.4); 
+    border: 1px solid rgba(255, 255, 255, 0.05); 
+    border-radius: 18px; 
+    padding: 12px;
+}
+
+.glassmorphism-nav {
+    background: rgba(15, 15, 15, 0.88) !important; 
+    backdrop-filter: blur(25px) !important; 
+    -webkit-backdrop-filter: blur(25px) !important; 
+    border: 1px solid rgba(255, 255, 255, 0.1) !important; 
+    box-shadow: 0 -8px 32px 0 rgba(0, 0, 0, 0.6) !important;
+}
+
+.drawer-backdrop {
+    position: fixed; 
+    inset: 0; 
+    background: rgba(0, 0, 0, 0.65); 
+    z-index: 55; 
+    opacity: 0; 
+    pointer-events: none; 
+    transition: opacity 0.3s ease; 
+    backdrop-filter: blur(6px);
+}
+.drawer-backdrop.active { opacity: 1; pointer-events: auto; }
+
+#comments-drawer.open { transform: translateY(0); }
+
+.cyber-comment-card {
+    background: rgba(255, 255, 255, 0.02); 
+    border: 1px solid rgba(255, 255, 255, 0.04); 
+    border-left: 2px solid #E50914; 
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.font-premium-script { font-family: 'Ole', cursive !important; font-weight: 400; text-transform: none !important; }
+
+/* SVG and Icon Fallback Button Overrides to fix cross rectangles */
+.nav-item-btn svg, .nav-item-btn span { color: #ffffff; transition: all 0.3s ease; pointer-events: none; }
+.nav-item-btn { background: transparent !important; border: none !important; outline: none !important; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; }
+.nav-item-btn.active-nav-btn svg { color: #e50914 !important; filter: drop-shadow(0 0 8px rgba(229, 9, 20, 0.6)); }
+.nav-item-btn.active-nav-btn { transform: scale(1.15); }
+
+.nav-item-btn.camera-highlight {
+    background: linear-gradient(135deg, #E50914, #b0070f) !important; 
+    padding: 0px; 
+    border-radius: 14px !important; 
+    width: 42px; 
+    height: 42px; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    margin-top: 0px; 
+    box-shadow: 0 4px 15px rgba(229, 9, 20, 0.4) !important;
+}
+.nav-item-btn.camera-highlight span { font-size: 1.4rem !important; color: #ffffff !important; line-height: 1; }
+
+.glass-input { background: rgba(0, 0, 0, 0.5) !important; border: 1px solid rgba(255, 255, 255, 0.1) !important; color: #ffffff !important; border-radius: 14px !important; transition: all 0.3s ease; }
+.glass-input:focus { border-color: #cc0612 !important; background: rgba(0, 0, 0, 0.7) !important; box-shadow: 0 0 15px rgba(204, 6, 18, 0.3) !important; outline: none !important; }
+
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Heart double click bounce pop animation overlay */
+.heart-bounce { animation: heartPop 0.4s ease-in-out forwards; }
+@keyframes heartPop {
+    0% { transform: scale(0.3); opacity: 0; }
+    50% { transform: scale(1.2); opacity: 1; }
+    100% { transform: scale(1); opacity: 0; }
+}

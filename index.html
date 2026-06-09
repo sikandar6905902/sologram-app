@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SoloGram - Elite Social Network</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Ole&family=Plus+Jakarta+Sans:wght=300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+    
+    <style>
+        body { background: #050505; color: white; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-user-select: none; user-select: none; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .glassmorphism { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+        .glassmorphism-nav { background: rgba(5, 5, 5, 0.85); backdrop-filter: blur(30px); border: 1px solid rgba(255,255,255,0.08); }
+        .glass-input { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.08); outline: none; transition: all 0.3s; }
+        .glass-input:focus { border-color: #E50914; box-shadow: 0 0 15px rgba(229, 9, 20, 0.15); }
+        .app-page { display: none !important; width: 100%; height: 100%; flex-direction: column; position: absolute; inset: 0; }
+        .app-page.active-page { display: flex !important; }
+        .drawer-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(15px); opacity: 0; pointer-events: none; transition: all 0.4s; z-index: 55; }
+        .drawer-backdrop.active { opacity: 1; pointer-events: auto; }
+        #comments-drawer.open, #network-drawer.open, #edit-profile-drawer.open { transform: translateY(0); }
+        .nav-item-btn { color: #52525b; transition: all 0.3s; font-size: 1.1rem; }
+        .nav-item-btn.active-nav-btn { color: #E50914; transform: scale(1.15); filter: drop-shadow(0 0 8px rgba(229,9,20,0.5)); }
+        .camera-highlight { background: linear-gradient(135deg, #E50914, #b0070f); color: white !important; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; border-radius: 14px; box-shadow: 0 4px 15px rgba(229,9,20,0.3); }
+        .font-premium-script { font-family: 'Ole', cursive; }
+        .premium-cyber-node { position: relative; border-radius: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); background: rgba(255,255,255,0.02); transition: all 0.3s; cursor: pointer; }
+        .premium-cyber-node:active { transform: scale(0.96); }
+        .noti-tab-pill { position: relative; z-index: 10; transition: color 0.4s; }
+        .noti-tab-pill.active-tab { color: #ffffff !important; font-weight: 700; }
+        #profile-lightbox-modal.active { opacity: 1; pointer-events: auto; }
+        
+        .cropper-container { background-color: #050505 !important; }
+        .cropper-view-box, .cropper-face { border-radius: 12px; outline: 2px solid #E50914; outline-color: rgba(229, 9, 20, 0.75); }
+        .cropper-line, .cropper-point { background-color: #E50914; }
+    </style>
+</head>
+<body class="flex justify-center items-center min-h-screen p-0 sm:p-4">
+
+    <div id="drawer-backdrop-mask" class="drawer-backdrop" onclick="closeAllDrawers()"></div>
+
+    <div class="relative w-full max-w-md h-[100vh] sm:h-[844px] bg-[#050505] sm:rounded-[40px] shadow-2xl border-0 sm:border-4 border-[#121212] overflow-hidden flex flex-col" onclick="closeAllActionMenus(event)">
+        
+        <div id="page-welcome" class="app-page active-page flex flex-col justify-between items-center p-8">
+            <div class="my-auto text-center w-full flex flex-col items-center">
+                <div class="w-32 h-32 mb-6 rounded-[32px] overflow-hidden bg-black/40 border border-white/10 flex items-center justify-center p-1.5 shadow-[0_0_35px_rgba(229,9,20,0.4)] backdrop-blur-md active:scale-95 duration-300">
+                    <img src="1000092936.jpg" alt="Logo" class="w-full h-full object-cover rounded-[24px]">
+                </div>
+                <h1 class="text-5xl font-black tracking-tight mb-4 filter drop-shadow-[0_4px_20px_rgba(229,9,20,0.3)]">
+                    <span class="text-white font-premium-script">Solo</span><span class="text-[#E50914] font-premium-script">Gram</span>
+                </h1>
+                <p class="text-zinc-400 text-[10px] tracking-[0.3em] uppercase opacity-90">Next-Gen Social Experience</p>
+            </div>
+            <div id="slider-track" class="w-full glassmorphism h-16 rounded-full p-1 relative flex items-center justify-center mb-12 overflow-hidden cursor-pointer">
+                <span id="slider-text" class="text-xs font-bold uppercase tracking-widest text-zinc-300">Slide to Explore</span>
+                <div id="slider-knob" class="absolute left-1 top-1 bottom-1 w-14 bg-gradient-to-r from-[#E50914] to-[#b0070f] rounded-full flex items-center justify-center cursor-grab active:cursor-grabbing shadow-lg duration-75 z-20">
+                    <i class="fa-solid fa-chevron-right text-white text-lg"></i>
+                </div>
+            </div>
+        </div>
+
+        <div id="page-login" class="app-page flex flex-col justify-between p-8">
+            <div class="my-auto w-full">
+                <div class="text-center mb-8"><h2 class="text-5xl font-premium-script text-white mb-2">Welcome Back</h2><p class="text-zinc-400 text-xs">Log in to your account</p></div>
+                <form onsubmit="handleRealLogin(event)" class="space-y-4">
+                    <input type="email" id="login-email" autocomplete="email" placeholder="Email Address" class="w-full glass-input p-4 rounded-xl text-white text-sm" required>
+                    <div class="relative w-full">
+                        <input type="password" id="login-password" autocomplete="current-password" placeholder="Password" class="w-full glass-input p-4 pr-12 rounded-xl text-white text-sm" required>
+                        <button type="button" id="btn-reveal-pwd" class="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400 active:text-[#E50914] p-2"><i class="fa-solid fa-eye"></i></button>
+                    </div>
+                    <button type="submit" id="login-submit-btn" class="w-full py-4 mt-2 bg-gradient-to-r from-[#E50914] to-[#b0070f] text-white font-semibold rounded-xl tracking-wide shadow-lg active:scale-95 transition-transform">Sign In</button>
+                </form>
+            </div>
+            <div class="text-center pb-2">
+                <button onclick="navigateTo('page-register')" class="flex flex-col items-center mx-auto text-xs text-zinc-400 hover:text-white tracking-wide gap-1">
+                    <span>Become a Part of SoloGram Family</span><span class="font-premium-script text-[#E50914] text-lg mt-0.5">Register</span>
+                </button>
+            </div>
+        </div>
+
+        <div id="page-register" class="app-page flex flex-col justify-between p-8 overflow-y-auto">
+            <div class="my-auto w-full py-4">
+                <div class="text-center mb-6"><h2 class="text-5xl font-premium-script text-white mb-2">Join The Elite</h2><p class="text-zinc-400 text-xs">Fill details to join SoloGram</p></div>
+                <form onsubmit="handleRealRegister(event)" class="space-y-3">
+                    <input type="text" id="reg-fullname" placeholder="Full Name" class="w-full glass-input p-3.5 rounded-xl text-white text-sm" required>
+                    <input type="text" id="reg-username" placeholder="Choose Username (without @)" class="w-full glass-input p-3.5 rounded-xl text-white text-sm" required>
+                    <input type="email" id="reg-email" autocomplete="email" placeholder="Email Address" class="w-full glass-input p-3.5 rounded-xl text-white text-sm" required>
+                    <input type="password" id="reg-password" autocomplete="new-password" placeholder="Create Password" class="w-full glass-input p-3.5 rounded-xl text-white text-sm" required>
+                    <button type="submit" id="reg-submit-btn" class="w-full py-4 mt-2 bg-gradient-to-r from-[#E50914] to-[#b0070f] text-white font-semibold rounded-xl tracking-wide shadow-lg">Register Now <i class="fa-solid fa-arrow-right ml-1 text-xs"></i></button>
+                </form>
+            </div>
+            <div class="text-center pb-2">
+                <button onclick="navigateTo('page-login')" class="flex flex-col items-center mx-auto text-xs text-zinc-400 hover:text-white tracking-wide gap-1">
+                    <span>Already Part of SoloGram?</span><span class="font-premium-script text-[#E50914] text-lg mt-0.5">Login</span>
+                </button>
+            </div>
+        </div>
+
+        <div id="page-home" class="app-page flex flex-col justify-between h-full">
+            <div class="w-full px-6 pt-6 pb-4 glassmorphism flex justify-end items-center z-40 border-b border-white/5 sticky top-0">
+                <h1 class="text-3xl font-black tracking-tight w-full text-right"><span class="text-white font-premium-script">Solo</span><span class="text-[#E50914] font-premium-script">Gram</span></h1>
+            </div>
+            <div class="flex-1 overflow-y-auto px-4 flex flex-col justify-start items-center space-y-8 pb-28 no-scrollbar" id="feed-scroll-container"></div>
+        </div>
+
+        <div id="page-search" class="app-page flex flex-col justify-between h-full pt-6 px-4 pb-24 overflow-y-auto no-scrollbar">
+            <div class="w-full flex flex-col">
+                <div class="mb-5">
+                    <h2 class="text-3xl font-black tracking-tight mb-3"><span class="text-white font-premium-script">Aura</span> <span class="text-[#E50914] font-premium-script">Explorer</span></h2>
+                    <div class="relative flex items-center bg-black border border-white/10 rounded-2xl px-4 py-3.5 shadow-2xl focus-within:border-[#E50914] transition-all">
+                        <i class="fa-solid fa-magnifying-glass text-zinc-500 text-sm mr-3"></i>
+                        <input type="text" id="search-input" placeholder="Search creators, aura..." class="bg-transparent text-white text-xs font-semibold w-full outline-none placeholder-zinc-600" oninput="executeSearchFiltering()">
+                        <button onclick="clearSearchInput()" id="clear-search-btn" class="hidden text-zinc-500 hover:text-white p-1"><i class="fa-solid fa-circle-xmark text-xs"></i></button>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2.5 overflow-x-auto no-scrollbar mb-6 pb-1">
+                    <button onclick="triggerTagSearch('Monaco')" class="bg-[#E50914] text-white text-[10px] font-bold px-4 py-2 rounded-xl tracking-wider uppercase shrink-0 shadow-lg">✨ #Monaco</button>
+                    <button onclick="triggerTagSearch('cruises')" class="bg-zinc-900 text-zinc-300 border border-white/5 text-[10px] font-bold px-4 py-2 rounded-xl tracking-wider uppercase shrink-0">🚢 #Cruises</button>
+                    <button onclick="triggerTagSearch('Luxury')" class="bg-zinc-900 text-zinc-300 border border-white/5 text-[10px] font-bold px-4 py-2 rounded-xl tracking-wider uppercase shrink-0">💎 #Luxury</button>
+                </div>
+                <div class="mb-3 px-1 flex justify-between items-center">
+                    <span id="search-view-title" class="text-[10px] font-extrabold tracking-widest text-zinc-400 uppercase">Trending Explorations</span>
+                    <span id="search-results-counter" class="text-[9px] font-bold text-zinc-600 uppercase"></span>
+                </div>
+                <div id="search-creators-tray" class="hidden flex flex-col gap-2.5 mb-5 border-b border-white/5 pb-5"></div>
+                <div id="search-results-grid" class="grid grid-cols-3 gap-2.5"></div>
+            </div>
+        </div>
+
+        <div id="page-create" class="app-page flex flex-col justify-between h-full pt-6 px-6 pb-24 overflow-y-auto no-scrollbar">
+            <div class="w-full flex flex-col space-y-5">
+                <h2 class="text-3xl font-black tracking-tight mb-2"><span class="text-white font-premium-script">Create</span> <span class="text-[#E50914] font-premium-script">Studio</span></h2>
+                <form onsubmit="handleRealPostUpload(event)" class="space-y-4">
+                    <div class="flex justify-between items-center gap-4 bg-zinc-900/60 p-3 rounded-2xl border border-white/5">
+                        <button type="button" onclick="triggerDeviceCamera()" class="flex-1 py-3 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center gap-2 hover:bg-white/10 active:scale-95 duration-200 text-xs font-bold text-zinc-200">
+                            <i class="fa-solid fa-camera text-[#E50914] text-sm"></i> Camera
+                        </button>
+                        <button type="button" onclick="document.getElementById('image-upload-input').click()" class="flex-1 py-3 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center gap-2 hover:bg-white/10 active:scale-95 duration-200 text-xs font-bold text-zinc-200">
+                            <i class="fa-solid fa-image text-blue-500 text-sm"></i> Gallery
+                        </button>
+                    </div>
+
+                    <input type="file" id="image-upload-input" accept="image/*" class="hidden" onchange="handleImageSelectionPreview(this)">
+                    
+                    <div id="studio-preview-wrapper" class="hidden relative rounded-xl overflow-hidden bg-zinc-900 border border-white/10 max-h-[300px]">
+                        <img id="upload-display-img" class="w-full h-auto max-h-[300px] object-contain mx-auto">
+                        <button type="button" onclick="clearSelectedImage()" class="absolute top-2 right-2 bg-black/70 backdrop-blur-md text-red-500 border border-white/10 w-9 h-9 rounded-xl flex items-center justify-center shadow-2xl hover:bg-red-500 hover:text-white transition-all duration-200 active:scale-90">
+                            <i class="fa-solid fa-trash-can text-xs"></i>
+                        </button>
+                    </div>
+                    <input type="text" id="upload-location" placeholder="Location (e.g. Monaco)" class="w-full glass-input p-3.5 rounded-xl text-white text-xs">
+                    
+                    <textarea id="upload-caption" placeholder="Write an elite caption..." class="w-full glass-input p-3.5 rounded-xl text-white text-xs h-24 resize-none"></textarea>
+                    
+                    <button type="submit" id="publish-post-btn" class="w-full py-4 bg-gradient-to-r from-[#E50914] to-[#b0070f] text-white font-bold rounded-xl text-xs uppercase tracking-wider shadow-lg">Publish Post</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="crop-editor-modal" class="absolute inset-0 bg-black z-[100] hidden flex-col justify-between p-4">
+            <div class="flex justify-between items-center border-b border-white/10 pb-3">
+                <h3 class="text-sm font-bold tracking-wider text-zinc-200 uppercase">Edit & Crop Image</h3>
+                <button onclick="closeCropModal()" class="text-zinc-400 hover:text-white p-2"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="flex-1 my-auto flex items-center justify-center overflow-hidden max-h-[60vh] rounded-2xl border border-white/5 mt-4">
+                <img id="cropper-target-img" class="max-w-full max-h-full block">
+            </div>
+            <div class="space-y-4 pb-4">
+                <div class="flex justify-center items-center gap-6 text-zinc-300 text-base border-t border-white/5 pt-4">
+                    <button onclick="_cropper.rotate(-90)" class="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center hover:bg-white/10"><i class="fa-solid fa-rotate-left"></i></button>
+                    <button onclick="_cropper.setAspectRatio(1/1)" class="text-xs font-bold px-3 py-2 bg-white/5 rounded-xl hover:bg-[#E50914] hover:text-white">1:1 Square</button>
+                    <button onclick="_cropper.setAspectRatio(NaN)" class="text-xs font-bold px-3 py-2 bg-white/5 rounded-xl hover:bg-[#E50914] hover:text-white">Free Form</button>
+                    <button onclick="_cropper.rotate(90)" class="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center hover:bg-white/10"><i class="fa-solid fa-rotate-right"></i></button>
+                </div>
+                <button onclick="applyCroppedResult()" class="w-full py-4 bg-gradient-to-r from-[#E50914] to-[#b0070f] text-white font-bold rounded-xl text-xs uppercase tracking-widest shadow-2xl">Crop & Save Asset</button>
+            </div>
+        </div>
+
+        <div id="page-notifications" class="app-page flex flex-col justify-between h-full pt-6 px-4 pb-24">
+            <div class="w-full flex flex-col h-full">
+                <h2 class="text-3xl font-black tracking-tight mb-4"><span class="text-[#E50914] font-premium-script">Activity</span></h2>
+                <div class="flex border-b border-white/5 relative mb-4">
+                    <button id="noti-tab-all" onclick="filterNotifications('all', this)" class="noti-tab-pill active-tab flex-1 text-center py-2 text-[11px]">All</button>
+                    <button id="noti-tab-like" onclick="filterNotifications('like', this)" class="noti-tab-pill text-zinc-400 flex-1 text-center py-2 text-[11px]">Likes</button>
+                    <button id="noti-tab-comment" onclick="filterNotifications('comment', this)" class="noti-tab-pill text-zinc-400 flex-1 text-center py-2 text-[11px]">Comments</button>
+                    <button id="noti-tab-follower" onclick="filterNotifications('follower', this)" class="noti-tab-pill text-zinc-400 flex-1 text-center py-2 text-[11px]">Followers</button>
+                    <div id="premium-tab-indicator" class="absolute bottom-0 h-0.5 bg-[#E50914] transition-all duration-300" style="width: 25%; left: 0;"></div>
+                </div>
+                <div id="notifications-stack-container" class="flex-1 overflow-y-auto space-y-3 no-scrollbar pb-6"></div>
+            </div>
+        </div>
+
+        <div id="page-profile" class="app-page flex flex-col justify-start h-full pt-6 px-4 pb-24">
+            <div class="w-full flex flex-col space-y-5 h-full">
+                <div class="flex items-center justify-between shrink-0">
+                    <div class="flex items-center space-x-4">
+                        <img id="my-profile-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" class="w-16 h-16 object-cover rounded-2xl border border-[#E50914]">
+                        <div>
+                            <div class="flex items-center"><h3 id="my-profile-username" class="font-bold text-white text-base">@loading...</h3><i class="fa-solid fa-circle-check text-[#E50914] text-xs ml-1.5"></i></div>
+                            <p id="my-profile-fullname" class="text-[10px] text-zinc-400 uppercase tracking-widest mt-0.5">Elite Member</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="openEditProfileDrawer()" class="w-9 h-9 glassmorphism border border-white/10 rounded-xl text-zinc-300 flex items-center justify-center hover:text-[#E50914] transition-colors"><i class="fa-solid fa-user-gear text-sm"></i></button>
+                        <button onclick="handleRealLogout()" class="w-9 h-9 glassmorphism border border-white/10 rounded-xl text-red-500 flex items-center justify-center hover:bg-red-500/10 transition-colors"><i class="fa-solid fa-right-from-bracket text-sm"></i></button>
+                    </div>
+                </div>
+                <div class="grid grid-cols-3 gap-2 text-center py-3 glassmorphism rounded-2xl border border-white/5 shrink-0">
+                    <div><span id="profile-posts-count" class="block font-bold text-white text-sm">0</span><span class="text-[9px] text-zinc-500 uppercase">Posts</span></div>
+                    <div class="cursor-pointer group active:scale-95 transition-transform" onclick="openNetworkDrawer('followers')">
+                        <span id="profile-followers-count" class="block font-bold text-white text-sm group-hover:text-[#E50914]">4</span>
+                        <span class="text-[9px] text-zinc-500 uppercase tracking-wide group-hover:text-zinc-300">Followers</span>
+                    </div>
+                    <div class="cursor-pointer group active:scale-95 transition-transform" onclick="openNetworkDrawer('following')">
+                        <span id="profile-following-count" class="block font-bold text-white text-sm group-hover:text-[#E50914]">3</span>
+                        <span class="text-[9px] text-zinc-500 uppercase tracking-wide group-hover:text-zinc-300">Following</span>
+                    </div>
+                </div>
+                <div class="flex-1 overflow-y-auto no-scrollbar pb-6">
+                    <div id="profile-portfolio-grid" class="grid grid-cols-3 gap-2.5"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="profile-lightbox-modal" class="absolute inset-0 bg-black/95 backdrop-blur-2xl z-55 flex flex-col justify-start p-4 opacity-0 pointer-events-none transition-all duration-300 overflow-y-auto no-scrollbar" onclick="handleOutsideLightboxClick(event)">
+            <div class="w-full max-w-sm mx-auto flex justify-end mb-2 pt-2">
+                <button onclick="closeProfileLightbox()" class="text-white w-10 h-10 rounded-full bg-gradient-to-r from-[#E50914] to-[#b0070f] flex items-center justify-center border border-white/10 shadow-lg"><i class="fa-solid fa-xmark text-sm"></i></button>
+            </div>
+            <div id="lightbox-card-content" class="w-full max-w-sm mx-auto glassmorphism rounded-[32px] p-4 border border-[#E50914]/20 shadow-2xl flex flex-col space-y-4 mb-24"></div>
+        </div>
+
+        <div id="comments-drawer" class="absolute bottom-0 left-0 right-0 h-[78vh] max-h-[78vh] rounded-t-[40px] flex flex-col translate-y-full transition-transform duration-500 bg-[#070708] border-t border-white/10 z-[60] shadow-[0_-20px_50px_rgba(0,0,0,0.95)]">
+            <div class="w-full flex justify-between items-center px-6 py-4 border-b border-white/5 bg-black/80 backdrop-blur-md rounded-t-[40px]">
+                <div class="flex items-center space-x-2"><span class="w-2 h-2 rounded-full bg-[#E50914] shadow-[0_0_10px_#E50914]"></span><h3 class="text-xs font-bold text-zinc-200 tracking-widest uppercase">Comments</h3></div>
+                <button onclick="closeCommentsDrawer()" class="text-zinc-400 hover:text-[#E50914] p-2 rounded-full"><i class="fa-solid fa-xmark text-base"></i></button>
+            </div>
+            <div id="drawer-comments-list" class="flex-1 overflow-y-auto p-5 space-y-4 text-xs no-scrollbar pb-28"></div>
+            <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black via-black/95 to-black/90 border-t border-white/10 flex items-center gap-3 z-[70] backdrop-blur-xl">
+                <div class="flex-1 relative flex items-center bg-zinc-900/80 border border-white/10 rounded-2xl px-4 py-3.5 focus-within:border-[#E50914] transition-all">
+                    <input type="text" id="new-comment-input" placeholder="Add a premium comment..." class="w-full bg-transparent text-white text-xs font-medium outline-none placeholder-zinc-500 pr-2">
+                </div>
+                <button onclick="addNewCommentLocally('feed')" class="bg-gradient-to-r from-[#E50914] to-[#b0070f] text-white text-xs font-bold h-[48px] px-6 rounded-2xl shadow-[0_4px_20px_rgba(229,9,20,0.4)] flex items-center justify-center tracking-wider uppercase">Share</button>
+            </div>
+        </div>
+
+        <div id="network-drawer" class="absolute bottom-0 left-0 right-0 h-[75vh] max-h-[75vh] rounded-t-[40px] flex flex-col translate-y-full transition-transform duration-500 bg-[#070708] border-t border-white/10 z-[60] shadow-[0_-20px_50px_rgba(0,0,0,0.95)]">
+            <div class="w-full flex justify-between items-center px-6 py-5 border-b border-white/5 bg-black/80 backdrop-blur-md rounded-t-[40px]">
+                <div class="flex items-center space-x-2.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-[#E50914] shadow-[0_0_8px_#E50914]"></span>
+                    <h3 id="network-drawer-title" class="text-xs font-black text-zinc-100 tracking-[0.2em] uppercase">Elite Connections</h3>
+                </div>
+                <button onclick="closeNetworkDrawer()" class="text-zinc-400 hover:text-[#E50914] p-2 rounded-full transition-colors"><i class="fa-solid fa-xmark text-base"></i></button>
+            </div>
+            <div id="network-nodes-list" class="flex-1 overflow-y-auto p-5 space-y-3.5 no-scrollbar pb-12"></div>
+        </div>
+
+        <div id="edit-profile-drawer" class="absolute bottom-0 left-0 right-0 h-[70vh] max-h-[70vh] rounded-t-[40px] flex flex-col translate-y-full transition-transform duration-500 bg-[#070708] border-t border-white/10 z-[60] shadow-[0_-20px_50px_rgba(0,0,0,0.95)]">
+            <div class="w-full flex justify-between items-center px-6 py-4 border-b border-white/5 bg-black/80 backdrop-blur-md rounded-t-[40px]">
+                <div class="flex items-center space-x-2"><span class="w-2 h-2 rounded-full bg-[#E50914] shadow-[0_0_10px_#E50914]"></span><h3 class="text-xs font-bold text-zinc-200 tracking-widest uppercase">Edit Profile</h3></div>
+                <button onclick="closeEditProfileDrawer()" class="text-zinc-400 hover:text-[#E50914] p-2 rounded-full"><i class="fa-solid fa-xmark text-base"></i></button>
+            </div>
+            <form onsubmit="saveProfileEdits(event)" class="flex-1 p-6 space-y-4 overflow-y-auto no-scrollbar pb-24">
+                <div class="flex flex-col items-center mb-2">
+                    <div class="w-20 h-20 rounded-2xl overflow-hidden bg-zinc-900 border border-white/10 relative group cursor-pointer" onclick="document.getElementById('avatar-upload-input').click()">
+                        <img id="edit-avatar-preview" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" class="w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><i class="fa-solid fa-camera text-white text-sm"></i></div>
+                    </div>
+                    <input type="file" id="avatar-upload-input" accept="image/*" class="hidden" onchange="handleAvatarSelection(this)">
+                    <p class="text-[10px] text-zinc-500 uppercase tracking-widest mt-1.5">Change Premium Avatar</p>
+                </div>
+                <div class="space-y-1">
+                    <label class="text-[9px] font-bold text-zinc-500 uppercase tracking-wider pl-1">Full Name</label>
+                    <input type="text" id="edit-fullname-input" class="w-full glass-input p-3.5 rounded-xl text-white text-xs" required>
+                </div>
+                <div class="space-y-1">
+                    <label class="text-[9px] font-bold text-zinc-500 uppercase tracking-wider pl-1">Username</label>
+                    <input type="text" id="edit-username-input" class="w-full glass-input p-3.5 rounded-xl text-white text-xs" required>
+                </div>
+                <button type="submit" id="save-profile-btn" class="w-full py-4 bg-gradient-to-r from-[#E50914] to-[#b0070f] text-white font-bold rounded-xl text-xs uppercase tracking-wider shadow-lg">Save Settings</button>
+            </form>
+        </div>
+
+        <div id="global-nav" class="hidden absolute bottom-4 left-4 right-4 flex justify-between items-center px-6 py-4 z-50 glassmorphism-nav rounded-2xl">
+            <button class="nav-item-btn active-nav-btn" data-target="page-home"><i class="fa-solid fa-house"></i></button>
+            <button class="nav-item-btn" data-target="page-search"><i class="fa-solid fa-magnifying-glass"></i></button>
+            <button class="nav-item-btn camera-highlight" data-target="page-create"><i class="fa-solid fa-circle-plus"></i></button>
+            <button class="nav-item-btn" data-target="page-notifications"><i class="fa-solid fa-bell"></i></button>
+            <button class="nav-item-btn" data-target="page-profile"><i class="fa-solid fa-user"></i></button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    
+    <script>
+        const $ = id => document.getElementById(id);
+        const escapeHtml = str => str ? str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") : '';
+
+        const SUPABASE_URL = "https://eyqbojjhjigzdferonlw.supabase.co";
+        const SUPABASE_ANON_KEY = "sb_publishable_uiTrFOJULieemTp1aSQtzQ_avpRTNH6"; 
+        
+        let _supabase = null, currentPageId = 'page-welcome', lastBackPressTime = 0, targetActivePostId = null, base64UploadedImageString = null, base64AvatarString = null;
+        let _cropper = null; 
+        let CURRENT_USER_ID = "loading..."; 
+        let CURRENT_FULLNAME = "Elite Member";
+        let CURRENT_AVATAR = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150";
+
+        try { 
+            if (typeof supabase !== 'undefined' && supabase.createClient) { 
+                _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); 
+            } 
+        } catch (e) { console.error("Supabase crash:", e); }
+
+        async function enforceSessionState() {
+            if (!_supabase) return;
+            const { data: { session } } = await _supabase.auth.getSession();
+            
+            if (session) {
+                CURRENT_USER_ID = session.user.user_metadata.username || session.user.email.split('@')[0];
+                CURRENT_FULLNAME = session.user.user_metadata.fullname || "Elite Member";
+                CURRENT_AVATAR = session.user.user_metadata.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150";
+                
+                syncProfileUIRendering();
+                executeNavigation('page-home'); 
+            } else {
+                executeNavigation('page-login'); 
+            }
+        }
+
+        function syncProfileUIRendering() {
+            if($('my-profile-username')) $('my-profile-username').innerText = `@${CURRENT_USER_ID}`;
+            if($('my-profile-fullname')) $('my-profile-fullname').innerText = CURRENT_FULLNAME;
+            if($('my-profile-avatar')) $('my-profile-avatar').src = CURRENT_AVATAR;
+            if($('edit-avatar-preview')) $('edit-avatar-preview').src = CURRENT_AVATAR;
+            if($('edit-fullname-input')) $('edit-fullname-input').value = CURRENT_FULLNAME;
+            if($('edit-username-input')) $('edit-username-input').value = CURRENT_USER_ID;
+        }
+
+        function navigateTo(pageId) {
+            const protectedPages = ['page-home', 'page-search', 'page-create', 'page-notifications', 'page-profile'];
+            if (protectedPages.includes(pageId)) {
+                if (!_supabase) return;
+                _supabase.auth.getSession().then(({ data: { session } }) => {
+                    if (!session) { navigateTo('page-login'); } else { executeNavigation(pageId); }
+                });
+            } else { executeNavigation(pageId); }
+        }
+
+        function executeNavigation(pageId) {
+            ['page-welcome', 'page-login', 'page-register', 'page-home', 'page-search', 'page-create', 'page-notifications', 'page-profile'].forEach(id => {
+                const el = $(id); if (el) { el.classList.remove('active-page'); el.style.setProperty('display', 'none', 'important'); }
+            });
+            const targetPage = $(pageId); if (!targetPage) return;
+            targetPage.classList.add('active-page'); targetPage.style.setProperty('display', 'flex', 'important'); currentPageId = pageId;
+            document.querySelectorAll('.nav-item-btn').forEach(b => b.classList.toggle('active-nav-btn', b.getAttribute('data-target') === pageId));
+            
+            const nav = $('global-nav');
+            if (nav) {
+                const showNav = ['page-home', 'page-search', 'page-create', 'page-notifications', 'page-profile'].includes(pageId);
+                nav.style.setProperty('display', showNav ? 'flex' : 'none', 'important');
+                nav.classList.toggle('hidden', !showNav);
+            }
+            closeAllDrawers(); closeProfileLightbox();
+            if(pageId === 'page-profile') renderUserProfileGrid();
+            if(pageId === 'page-home') fetchPostsFromSupabase();
+            if(pageId === 'page-search') executeSearchFiltering();
+            if(pageId === 'page-notifications') { fetchNotificationsFromSupabase(); }
+            window.history.pushState({page: pageId}, "");
+        }
+
+        window.addEventListener('popstate', () => {
+            if (['page-search', 'page-create', 'page-notifications', 'page-profile'].includes(currentPageId)) navigateTo('page-home'); 
+            else if (currentPageId === 'page-home') {
+                let curr = Date.now(); if (curr - lastBackPressTime < 2000) { if(navigator.app) navigator.app.exitApp(); } 
+                else { lastBackPressTime = curr; window.history.pushState({page: 'page-home'}, ""); }
+            } else if (['page-login', 'page-register'].includes(currentPageId)) executeNavigation('page-welcome');
+        });
+
+        document.querySelectorAll('.nav-item-btn').forEach(btn => btn.addEventListener('click', function() { navigateTo(this.getAttribute('data-target')); }));
+
+        async function handleRealRegister(e) {
+            e.preventDefault();
+            const btn = $('reg-submit-btn');
+            btn.innerText = "Creating Aura..."; btn.disabled = true;
+            const fullName = $('reg-fullname').value.trim();
+            const username = $('reg-username').value.trim().toLowerCase().replace(/[^a-z0-9_]/g, '');
+            const email = $('reg-email').value.trim();
+            const password = $('reg-password').value;
+
+            try {
+                const { data, error } = await _supabase.auth.signUp({
+                    email, password, options: { data: { fullname: fullName, username: username, avatar: CURRENT_AVATAR } }
+                });
+                if (error) throw error;
+                alert("Account created! Welcome to the elite roster.");
+                enforceSessionState();
+            } catch (err) { alert("Error: " + err.message); } finally { btn.innerText = "Register Now"; btn.disabled = false; }
+        }
+
+        async function handleRealLogin(e) {
+            e.preventDefault();
+            const btn = $('login-submit-btn');
+            btn.innerText = "Verifying Credentials..."; btn.disabled = true;
+            const email = $('login-email').value.trim();
+            const password = $('login-password').value;
+
+            try {
+                const { error } = await _supabase.auth.signInWithPassword({ email, password });
+                if (error) throw error;
+                enforceSessionState();
+            } catch (err) { alert("Auth Failed: " + err.message); } finally { btn.innerText = "Sign In"; btn.disabled = false; }
+        }
+
+        async function handleRealLogout() {
+            if (confirm("Are you sure you want to end this session?")) {
+                await _supabase.auth.signOut();
+                CURRENT_USER_ID = "loading...";
+                executeNavigation('page-welcome');
+            }
+        }
+
+        function openEditProfileDrawer() {
+            base64AvatarString = null;
+            syncProfileUIRendering();
+            $('drawer-backdrop-mask').classList.add('active');
+            $('edit-profile-drawer').classList.add('open');
+        }
+
+        function closeEditProfileDrawer() {
+            $('edit-profile-drawer').classList.remove('open');
+            if (!$('comments-drawer').classList.contains('open') && !$('network-drawer').classList.contains('open')) {
+                $('drawer-backdrop-mask').classList.remove('active');
+            }
+        }
+
+        function handleAvatarSelection(input) {
+            const file = input.files[0]; if (!file) return;
+            const reader = new FileReader();
+            reader.onload = e => {
+                openCropperEngine(e.target.result, true);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function saveProfileEdits(e) {
+            e.preventDefault();
+            const btn = $('save-profile-btn');
+            btn.innerText = "Encrypting Data..."; btn.disabled = true;
+            const targetName = $('edit-fullname-input').value.trim();
+            const targetUser = $('edit-username-input').value.trim().toLowerCase().replace(/[^a-z0-9_]/g, '');
+            const targetAvatar = base64AvatarString || CURRENT_AVATAR;
+
+            try {
+                const { data, error } = await _supabase.auth.updateUser({
+                    data: { fullname: targetName, username: targetUser, avatar: targetAvatar }
+                });
+                if (error) throw error;
+
+                CURRENT_FULLNAME = targetName;
+                CURRENT_USER_ID = targetUser;
+                CURRENT_AVATAR = targetAvatar;
+
+                syncProfileUIRendering();
+                renderUserProfileGrid();
+                fetchPostsFromSupabase();
+                closeEditProfileDrawer();
+                alert("Profile credentials updated successfully.");
+            } catch (err) { alert("Failed updating profile metadata: " + err.message); } finally { btn.innerText = "Save Settings"; btn.disabled = false; }
+        }
+
+        let luxuryPostsData = [];
+        let notificationsMockDataset = [];
+        let eliteFollowersDataset = [
+            { id: 501, username: "alex_matrix", avatar: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150", aura: "Elite Member" },
+            { id: 502, username: "lux_traveler", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150", aura: "Creator" }
+        ];
+        let eliteFollowingDataset = [
+            { id: 601, username: "aurum_lifestyle", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150", aura: "Content Creator" }
+        ];
+
+        function triggerDeviceCamera() {
+            alert("Camera device wrapper active. Snapping instant premium visual.");
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const knob = $('slider-knob'), track = $('slider-track'), text = $('slider-text');
+            if (knob && track) {
+                let isDragging = false, startX = 0;
+                const getX = e => e.touches ? e.touches[0].clientX : e.clientX;
+                const onStart = e => { isDragging = true; startX = getX(e); knob.style.transition = 'none'; };
+                const onMove = e => {
+                    if (!isDragging) return; const max = track.clientWidth - knob.clientWidth - 8; let dx = getX(e) - startX;
+                    dx = Math.max(0, Math.min(dx, max)); knob.style.transform = `translateX(${dx}px)`;
+                    if (text) text.style.opacity = 1 - (dx / max);
+                    if (dx >= max - 5) { isDragging = false; resetSlider(); enforceSessionState(); } 
+                };
+                const resetSlider = () => { knob.style.transition = 'transform 0.3s cubic-bezier(0.23, 1, 0.32, 1)'; knob.style.transform = 'translateX(0px)'; if (text) { text.style.transition = 'opacity 0.3s'; text.style.opacity = '1'; } };
+                knob.addEventListener('touchstart', onStart, { passive: true }); track.addEventListener('touchmove', onMove, { passive: true }); document.addEventListener('touchend', () => { isDragging = false; resetSlider(); });
+                knob.addEventListener('mousedown', onStart); document.addEventListener('mousemove', onMove); document.addEventListener('mouseup', () => { isDragging = false; resetSlider(); });
+            }
+            updateNetworkCounters();
+            executeNavigation('page-welcome');
+        });
+
+        const pwdInput = $('login-password'), revealBtn = $('btn-reveal-pwd');
+        if (revealBtn && pwdInput) { revealBtn.addEventListener('click', () => { const isPwd = pwdInput.type === 'password'; pwdInput.type = isPwd ? 'text' : 'password'; revealBtn.querySelector('i').className = isPwd ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash'; }); }
+
+        async function fetchPostsFromSupabase() { 
+            try { 
+                if (_supabase) { 
+                    const { data, error } = await _supabase.from('posts').select('*').order('id', { ascending: false }); 
+                    if (!error && data?.length > 0) luxuryPostsData = data; 
+                } 
+            } catch (e) { console.error("Failed database content link:", e); } 
+            renderPostFeedMarkup(luxuryPostsData); 
+        }
+
+        async function fetchNotificationsFromSupabase() {
+            try { if (_supabase) { const { data, error } = await _supabase.from('notifications').select('*').order('id', { ascending: false }); if (!error && data) notificationsMockDataset = data; } } catch (e) { console.error(e); }
+            renderNotificationsStack('all');
+            setTimeout(() => updatePremiumTabIndicator($('noti-tab-all')), 50);
+        }
+
+        let internalIsCroppingAvatarMode = false;
+        function openCropperEngine(imgSrcData, isAvatarMode = false) {
+            internalIsCroppingAvatarMode = isAvatarMode;
+            const modal = $('crop-editor-modal');
+            const targetImg = $('cropper-target-img');
+            targetImg.src = imgSrcData;
+            modal.classList.remove('hidden');
+
+            if(_cropper) { _cropper.destroy(); }
+
+            _cropper = new Cropper(targetImg, {
+                aspectRatio: isAvatarMode ? 1 / 1 : NaN,
+                viewMode: 1,
+                background: false,
+                responsive: true,
+                scalable: true,
+                zoomable: true
+            });
+        }
+
+        function closeCropModal() {
+            $('crop-editor-modal').classList.add('hidden');
+            if(_cropper) { _cropper.destroy(); _cropper = null; }
+            $('image-upload-input').value = "";
+            $('avatar-upload-input').value = "";
+        }
+
+        function applyCroppedResult() {
+            if(!_cropper) return;
+            
+            const maxWidthHeight = internalIsCroppingAvatarMode ? 150 : 800;
+            const canvas = _cropper.getCroppedCanvas({ width: maxWidthHeight, height: maxWidthHeight });
+            const finalBase64Result = canvas.toDataURL('image/jpeg', 0.6); // Slightly better quality for details
+
+            if(internalIsCroppingAvatarMode) {
+                base64AvatarString = finalBase64Result;
+                $('edit-avatar-preview').src = finalBase64Result;
+            } else {
+                base64UploadedImageString = finalBase64Result;
+                $('upload-display-img').src = finalBase64Result; 
+                $('studio-preview-wrapper').classList.remove('hidden');
+            }
+            closeCropModal();
+        }
+
+        // --- DYNAMIC ASPECT FIX ON FEED RENDER ---
+        function renderPostFeedMarkup(targetPostsArray) {
+            const feedContainer = $('feed-scroll-container'); if (!feedContainer) return; feedContainer.innerHTML = ''; 
+            if(!targetPostsArray.length) { feedContainer.innerHTML = `<div class="text-center text-zinc-500 py-32 text-xs font-semibold">No active timeline events.</div>`; return; }
+            
+            targetPostsArray.forEach((post) => {
+                const isMyPost = (post.username === CURRENT_USER_ID);
+                const isVerifiedNode = post.verified || isMyPost;
+                const verifiedBadge = isVerifiedNode ? `<i class="fa-solid fa-circle-check text-[#E50914] text-[10px] ml-1"></i>` : '';
+                
+                const dynamicRenderedAvatar = isMyPost ? CURRENT_AVATAR : (post.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150');
+
+                let initialCommentsHTML = `<p class="text-zinc-500 font-medium mt-1 text-[11px] cursor-pointer" onclick="openCommentsDrawer(${post.id})">Write a comment...</p>`;
+                if(post.comments?.length) { 
+                    initialCommentsHTML = ''; post.comments.slice(0, 2).forEach(comm => { initialCommentsHTML += `<p class="text-zinc-300 mt-1"><span class="font-bold text-white mr-1.5">@${comm.user}</span>${escapeHtml(comm.text)}</p>`; }); 
+                }
+                
+                // FIX: Aspect lock class removed. Obeying custom cropped aspect ratios natively
+                let mediaSegment = post.postImg ? `<div class="w-full rounded-2xl overflow-hidden relative group bg-zinc-900 max-h-[420px]" ondblclick="triggerHeartOverlay(this)"><img src="${post.postImg}" class="w-full h-auto max-h-[420px] object-contain mx-auto" loading="lazy"><div class="heart-overlay absolute inset-0 flex items-center justify-center opacity-0 scale-50 transition-all duration-200 pointer-events-none"><i class="fa-solid fa-heart text-white text-6xl"></i></div></div>` : ``;
+                
+                const card = document.createElement('div'); card.className = "w-full max-w-[94%] sm:max-w-sm glassmorphism rounded-[28px] p-4 border border-white/5 shadow-xl flex flex-col space-y-3.5 my-2"; card.setAttribute('data-post-id', post.id);
+                card.innerHTML = `<div class="flex justify-between items-center w-full"><div class="flex items-center space-x-3"><img src="${dynamicRenderedAvatar}" class="w-9 h-9 object-cover rounded-xl"><div><div class="flex items-center"><h4 class="text-xs font-bold text-white">${post.username}</h4>${verifiedBadge}</div><p class="text-[9px] text-zinc-400">${post.location}</p></div></div><span class="text-[9px] text-zinc-500">${post.time || 'Just now'}</span></div>${mediaSegment}<div class="flex flex-col space-y-2 px-1"><div class="flex justify-between items-center w-full"><div class="flex items-center space-x-4 text-zinc-300"><button class="like-btn" onclick="toggleLikeSystem(this, ${post.id})"><i class="${post.hasLiked ? 'fa-solid fa-heart text-[#E50914]' : 'fa-regular fa-heart'}"></i></button><button onclick="openCommentsDrawer(${post.id})"><i class="fa-regular fa-comment"></i></button><button onclick="triggerShareSystem()"><i class="fa-regular fa-paper-plane"></i></button></div></div><div class="text-[11px] font-semibold text-zinc-300"><span class="likes-count">${post.likes}</span> likes</div><p class="text-xs text-zinc-300"><span class="font-bold text-white mr-1.5">${post.username}</span>${post.caption || ''}</p><div class="border-t border-white/5 pt-2 mt-1 text-[11px]"><div class="mini-list">${initialCommentsHTML}</div></div></div>`;
+                feedContainer.appendChild(card);
+            });
+        }
+
+        async function toggleLikeSystem(btn, customPostId = null) {
+            let postId = customPostId || (btn ? parseInt(btn.closest('[data-post-id]').getAttribute('data-post-id')) : null); if(!postId) return;
+            const post = luxuryPostsData.find(p => p.id === postId); if(!post) return;
+            post.hasLiked = !post.hasLiked; post.likes += post.hasLiked ? 1 : -1;
+            
+            document.querySelectorAll(`[data-post-id="${postId}"]`).forEach(card => {
+                const countLabel = card.querySelector('.likes-count'); if(countLabel) countLabel.innerText = post.likes;
+                const icon = card.querySelector('.like-btn i'); if(icon) icon.className = post.hasLiked ? "fa-solid fa-heart text-[#E50914]" : "fa-regular fa-heart";
+            });
+            const label = $('lightbox-likes-label');
+            if(targetActivePostId === postId && label) { label.innerHTML = `<i class="${post.hasLiked ? 'fa-solid fa-heart text-[#E50914] mr-1' : 'fa-regular fa-heart text-zinc-400 mr-1'}"></i><span>${post.likes} Likes</span>`; }
+            if(_supabase) {
+                try {
+                    await _supabase.from('posts').update({ likes: post.likes, hasLiked: post.hasLiked }).eq('id', postId);
+                    if(post.hasLiked && post.username !== CURRENT_USER_ID) {
+                        await _supabase.from('notifications').insert([{ type: 'like', username: CURRENT_USER_ID, avatar: CURRENT_AVATAR, text: 'liked your aesthetic creation.', time: 'Just now', targetPostId: postId }]);
+                    }
+                } catch(e) { console.error(e); }
+            }
+        }
+
+        function triggerHeartOverlay(mediaDiv) {
+            const overlay = mediaDiv.querySelector('.heart-overlay'); overlay.classList.remove('opacity-0', 'scale-50'); overlay.classList.add('opacity-100', 'scale-100');
+            setTimeout(() => { overlay.classList.remove('opacity-100', 'scale-100'); overlay.classList.add('opacity-0', 'scale-50'); }, 400);
+            const postId = parseInt(mediaDiv.closest('[data-post-id]').getAttribute('data-post-id'));
+            const post = luxuryPostsData.find(p => p.id === postId); if(post && !post.hasLiked) toggleLikeSystem(null, postId);
+        }
+
+        function openCommentsDrawer(postId) {
+            targetActivePostId = postId; const drawer = $('comments-drawer'), listArea = $('drawer-comments-list'), mask = $('drawer-backdrop-mask'), post = luxuryPostsData.find(p => p.id === postId); if (!post || !drawer || !listArea) return;
+            renderDrawerCommentsList(post, listArea, 'drawer'); if (mask) mask.classList.add('active'); drawer.classList.add('open');
+        }
+
+        function renderDrawerCommentsList(post, listArea, context = 'drawer') {
+            listArea.innerHTML = '';
+            if(post.comments?.length) {
+                post.comments.forEach((comm) => {
+                    const isMyComment = (comm.user === CURRENT_USER_ID), likeIconClass = comm.liked ? "fa-solid fa-heart text-[#E50914]" : "fa-regular fa-heart";
+                    const actionItems = `<button onclick="executeMenuAction('copy', ${post.id}, ${comm.id}, '${context}')" class="w-full text-left px-4 py-2.5 text-zinc-300 hover:bg-white/5 flex items-center gap-2"><i class="fa-regular fa-copy text-xs"></i> Copy</button>` + (isMyComment ? `<button onclick="executeMenuAction('delete', ${post.id}, ${comm.id}, '${context}')" class="w-full text-left px-4 py-2.5 text-red-500 hover:bg-red-500/10 font-bold border-t border-white/5 flex items-center gap-2"><i class="fa-solid fa-trash-can text-xs"></i> Delete</button>` : '');
+                    listArea.innerHTML += `<div class="p-3.5 rounded-2xl bg-zinc-900/40 border border-white/5 flex items-center justify-between gap-3 text-left"><div class="flex-1 min-w-0"><span class="font-bold text-white block text-[11px] mb-1">@${comm.user}</span><span class="text-zinc-300 block text-[12px] break-words">${escapeHtml(comm.text)}</span></div><div class="flex items-center space-x-2 shrink-0 relative"><button onclick="toggleCommentLike(${post.id}, ${comm.id}, this)" class="w-7 h-7 text-zinc-500 text-xs"><i class="${likeIconClass}"></i></button><div class="relative"><button onclick="toggleActionDropdown(event, ${comm.id})" class="w-7 h-7 text-zinc-500 text-xs"><i class="fa-solid fa-ellipsis-vertical"></i></button><div id="dropdown-${comm.id}" class="comment-action-dropdown absolute right-0 mt-1 w-32 bg-zinc-950/95 border border-white/10 rounded-xl shadow-2xl opacity-0 scale-95 pointer-events-none transition-all z-50 backdrop-blur-md overflow-hidden">${actionItems}</div></div></div></div>`;
+                });
+            } else { listArea.innerHTML = `<p class="italic text-[11px] text-zinc-600 text-center py-8">No comment traces.</p>`; }
+        }
+
+        function toggleActionDropdown(event, commId) { event.stopPropagation(); const currentDropdown = $(`dropdown-${commId}`), isOpen = currentDropdown?.classList.contains('opacity-100'); document.querySelectorAll('.comment-action-dropdown').forEach(d => d.classList.add('opacity-0', 'scale-95', 'pointer-events-none')); if (!isOpen && currentDropdown) currentDropdown.classList.remove('opacity-0', 'scale-95', 'pointer-events-none', 'opacity-100', 'scale-100'); }
+        function closeAllActionMenus() { document.querySelectorAll('.comment-action-dropdown').forEach(d => d.classList.add('opacity-0', 'scale-95', 'pointer-events-none')); }
+        
+        async function toggleCommentLike(postId, commentId, btn) { 
+            const post = luxuryPostsData.find(p => p.id === postId); const comment = post?.comments?.find(c => c.id === commentId); if (!comment) return; 
+            comment.liked = !comment.liked; btn.querySelector('i').className = comment.liked ? "fa-solid fa-heart text-[#E50914]" : "fa-regular fa-heart"; 
+            if(_supabase) { try { await _supabase.from('posts').update({ comments: post.comments }).eq('id', postId); } catch(e) { console.error(e); } }
+        }
+        
+        async function executeMenuAction(action, postId, commentId, context) {
+            const post = luxuryPostsData.find(p => p.id === postId); const commIndex = post?.comments?.findIndex(c => c.id === commentId); if (commIndex === undefined || commIndex === -1) return;
+            if (action === 'copy') navigator.clipboard.writeText(post.comments[commIndex].text); 
+            else if (action === 'delete') { 
+                post.comments.splice(commIndex, 1); 
+                if(_supabase) { try { await _supabase.from('posts').update({ comments: post.comments }).eq('id', postId); } catch(e) { console.error(e); } }
+                renderDrawerCommentsList(post, $(context === 'lightbox' ? 'lightbox-comments-list-area' : 'drawer-comments-list'), context); 
+                renderPostFeedMarkup(luxuryPostsData); 
+            }
+            closeAllActionMenus();
+        }
+
+        async function addNewCommentLocally(context) {
+            let input = $((context === 'lightbox') ? 'lightbox-comment-input' : 'new-comment-input'); if (!input?.value.trim() || !targetActivePostId) return;
+            const post = luxuryPostsData.find(p => p.id === targetActivePostId); if (!post) return; if (!post.comments) post.comments = [];
+            const commentText = input.value.trim();
+            post.comments.push({ id: Date.now(), user: CURRENT_USER_ID, text: commentText, liked: false });
+            
+            renderDrawerCommentsList(post, $(context === 'lightbox' ? 'lightbox-comments-list-area' : 'drawer-comments-list'), context); 
+            renderPostFeedMarkup(luxuryPostsData); 
+            input.value = ''; 
+            if(_supabase) {
+                try {
+                    await _supabase.from('posts').update({ comments: post.comments }).eq('id', post.id);
+                    if(post.username !== CURRENT_USER_ID) {
+                        await _supabase.from('notifications').insert([{ type: 'comment', username: CURRENT_USER_ID, avatar: CURRENT_AVATAR, text: `commented: '${commentText}'`, targetPostId: post.id }]);
+                    }
+                } catch(e) { console.error(e); }
+            }
+        }
+
+        function updateNetworkCounters() {
+            if($('profile-followers-count')) $('profile-followers-count').innerText = eliteFollowersDataset.length;
+            if($('profile-following-count')) $('profile-following-count').innerText = eliteFollowingDataset.length;
+        }
+
+        function openNetworkDrawer(type) {
+            const drawer = $('network-drawer'), title = $('network-drawer-title'), listContainer = $('network-nodes-list'), mask = $('drawer-backdrop-mask');
+            if(!drawer || !listContainer || !mask) return;
+            listContainer.innerHTML = '';
+            if(type === 'followers') {
+                title.innerText = "Elite Followers";
+                eliteFollowersDataset.forEach(node => {
+                    listContainer.innerHTML += `<div id="node-row-${node.id}" class="p-3 rounded-2xl glassmorphism border border-white/5 flex items-center justify-between gap-3"><img src="${node.avatar}" class="w-10 h-10 object-cover rounded-xl border border-white/10"><div><span class="text-xs font-bold text-white">@${node.username}</span></div><button onclick="removeFollowerNode(${node.id})" class="text-[10px] font-bold text-zinc-400 bg-white/5 border border-white/10 px-3 py-1.5 rounded-xl hover:text-red-500">Remove</button></div>`;
+                });
+            } else {
+                title.innerText = "Following Premium Nodes";
+                eliteFollowingDataset.forEach(node => {
+                    listContainer.innerHTML += `<div id="node-row-${node.id}" class="p-3 rounded-2xl glassmorphism border border-white/5 flex items-center justify-between gap-3"><img src="${node.avatar}" class="w-10 h-10 object-cover rounded-xl border border-white/10"><div><span class="text-xs font-bold text-white">@${node.username}</span></div><button onclick="unfollowFollowingNode(${node.id})" class="text-[10px] font-bold text-white bg-gradient-to-r from-[#E50914] to-[#b0070f] px-3 py-1.5 rounded-xl">Unfollow</button></div>`;
+                });
+            }
+            mask.classList.add('active'); drawer.classList.add('open');
+        }
+
+        function removeFollowerNode(nodeId) { eliteFollowersDataset = eliteFollowersDataset.filter(n => n.id !== nodeId); updateNetworkCounters(); openNetworkDrawer('followers'); }
+        function unfollowFollowingNode(nodeId) { eliteFollowingDataset = eliteFollowingDataset.filter(n => n.id !== nodeId); updateNetworkCounters(); openNetworkDrawer('following'); }
+        function closeNetworkDrawer() { const d = $('network-drawer'), m = $('drawer-backdrop-mask'); if(d) d.classList.remove('open'); if(m && !$('comments-drawer').classList.contains('open') && !$('edit-profile-drawer').classList.contains('open')) m.classList.remove('active'); }
+        function closeCommentsDrawer() { const d = $('comments-drawer'), m = $('drawer-backdrop-mask'); if(d) d.classList.remove('open'); if(m && !$('network-drawer').classList.contains('open') && !$('edit-profile-drawer').classList.contains('open')) m.classList.remove('active'); closeAllActionMenus(); }
+        function closeAllDrawers() { closeCommentsDrawer(); closeNetworkDrawer(); closeEditProfileDrawer(); }
+        function triggerShareSystem() { if(navigator.share) navigator.share({ title: 'SoloGram', text: 'Elite post', url: window.location.href }).catch(console.error); else navigator.clipboard.writeText(window.location.href); }
+
+        function openProfileLightbox(postId) {
+            targetActivePostId = postId; const modal = $('profile-lightbox-modal'), content = $('lightbox-card-content'), post = luxuryPostsData.find(p => p.id === postId); if(!modal || !content || !post) return;
+            const isMyPost = (post.username === CURRENT_USER_ID);
+            const computedAvatar = isMyPost ? CURRENT_AVATAR : (post.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150');
+
+            // LIGHTBOX ASPECT RATIO RECONFIGURED NATIVELY
+            let mediaPart = post.postImg ? `<div class="w-full rounded-2xl overflow-hidden bg-black/40 max-h-[380px]"><img src="${post.postImg}" class="w-full h-auto max-h-[380px] object-contain mx-auto"></div>` : '';
+            content.innerHTML = `<div class="flex justify-between items-center w-full pb-1 text-left"><div class="flex items-center space-x-2.5"><img src="${computedAvatar}" class="w-7 h-7 object-cover rounded-lg"><div><h4 class="text-xs font-bold text-white">@${post.username}</h4><p class="text-[8px] text-zinc-400">${post.location || 'Global Node'}</p></div></div></div>${mediaPart}<div class="space-y-3 px-1 text-left"><div class="flex items-center justify-between w-full"><div id="lightbox-likes-label" onclick="toggleLikeSystem(this, ${post.id})" class="text-[10px] font-bold text-zinc-300 cursor-pointer flex items-center"><i class="${post.hasLiked ? 'fa-solid fa-heart text-[#E50914] mr-1' : 'fa-regular fa-heart text-zinc-400 mr-1'}"></i><span>${post.likes || 0} Likes</span></div><button onclick="triggerShareSystem()" class="text-zinc-400 text-xs"><i class="fa-regular fa-paper-plane"></i></button></div><p class="text-xs text-zinc-300"><span class="font-bold text-white mr-1">@${post.username}</span>${escapeHtml(post.caption)}</p><div class="border-t border-white/10 pt-3 mt-2"><span class="text-[10px] font-bold tracking-wider text-zinc-400 uppercase block mb-3">Post Comments</span><div id="lightbox-comments-list-area" class="space-y-3 max-h-[180px] overflow-y-auto no-scrollbar pb-1"></div><div class="flex items-center gap-2 mt-3 pt-2 border-t border-white/5"><input type="text" id="lightbox-comment-input" placeholder="Add comment..." class="w-full bg-zinc-900 border border-white/10 rounded-xl px-3 py-2 text-white text-[11px] outline-none"><button onclick="addNewCommentLocally('lightbox')" class="bg-gradient-to-r from-[#E50914] to-[#b0070f] text-white text-[10px] font-bold px-4 py-2.5 rounded-xl uppercase">Post</button></div></div></div>`;
+            renderDrawerCommentsList(post, $('lightbox-comments-list-area'), 'lightbox'); modal.classList.add('active'); modal.scrollTop = 0; 
+        }
+
+        function closeProfileLightbox() { const m = $('profile-lightbox-modal'); if(m) m.classList.remove('active'); targetActivePostId = null; closeAllActionMenus(); }
+        function handleOutsideLightboxClick(e) { if(e.target.id === 'profile-lightbox-modal') closeProfileLightbox(); }
+
+        function executeSearchFiltering() {
+            const src = $('search-input'), clr = $('clear-search-btn'), cnt = $('search-results-counter'), grid = $('search-results-grid'); if (!src || !grid) return;
+            let q = src.value.toLowerCase().trim(); if (q.startsWith('#')) q = q.substring(1).trim();
+            if (q.length > 0) { clr.classList.remove('hidden'); } else { clr.classList.add('hidden'); cnt.innerText = ""; renderTrendingDefaultGrid(); return; }
+            
+            const fPosts = luxuryPostsData.filter(p => (p.caption && p.caption.toLowerCase().includes(q)) || (p.username && p.username.toLowerCase().includes(q)) || (p.location && p.location.toLowerCase().includes(q)));
+            grid.innerHTML = ''; cnt.innerText = `${fPosts.length} Matches`;
+            fPosts.forEach(p => { 
+                if (p.postImg) grid.innerHTML += `<div class="aspect-square rounded-2xl overflow-hidden relative group cursor-pointer border border-white/5 bg-zinc-900 shadow-lg" onclick="openProfileLightbox(${p.id})"><img src="${p.postImg}" class="w-full h-full object-cover"></div>`; 
+                else grid.innerHTML += `<div class="aspect-square rounded-2xl p-3 border border-[#E50914]/30 bg-zinc-950 shadow-lg" onclick="openProfileLightbox(${p.id})"><p class="text-[10px] text-zinc-300 line-clamp-4">"${escapeHtml(p.caption)}"</p></div>`;
+            });
+        }
+
+        function renderTrendingDefaultGrid() { const res = $('search-results-grid'); if (!res) return; res.innerHTML = ''; luxuryPostsData.forEach(p => { if (p.postImg) res.innerHTML += `<div class="aspect-square rounded-2xl overflow-hidden relative group cursor-pointer border border-white/5 bg-zinc-900 shadow-md" onclick="openProfileLightbox(${p.id})"><img src="${p.postImg}" class="w-full h-full object-cover"></div>`; }); }
+        function clearSearchInput() { const s = $('search-input'); if(s) { s.value = ''; executeSearchFiltering(); } }
+        function triggerTagSearch(t) { const s = $('search-input'); if(s) { s.value = t; executeSearchFiltering(); } }
+
+        function handleImageSelectionPreview(input) { 
+            const file = input.files[0]; if (!file) return; 
+            const reader = new FileReader(); 
+            reader.onload = e => { 
+                openCropperEngine(e.target.result, false);
+            }; 
+            reader.readAsDataURL(file); 
+        }
+        function clearSelectedImage() { base64UploadedImageString = null; $('studio-preview-wrapper').classList.add('hidden'); $('image-upload-input').value = ""; }
+        
+        // --- REAL-TIME DATA TRANSMISSION UPLOAD TUNNEL FIXED ---
+        async function handleRealPostUpload(e) { 
+            e.preventDefault(); 
+            const publishBtn = $('publish-post-btn');
+            const loc = $('upload-location').value.trim(); 
+            const cap = $('upload-caption').value.trim(); 
+            let finalImageUrl = base64UploadedImageString;
+
+            if (!cap && !finalImageUrl) { alert("Jaani, kuch to likho ya gallery/camera se image select karo!"); return; }
+            publishBtn.innerText = "Processing Asset..."; publishBtn.disabled = true;
+
+            const newPost = {
+                username: CURRENT_USER_ID, 
+                avatar: CURRENT_AVATAR, 
+                verified: true, 
+                location: loc || "Global Node", 
+                caption: cap || "", 
+                postImg: finalImageUrl || null, 
+                likes: 0, 
+                hasLiked: false, 
+                comments: [],
+                time: 'Just now'
+            };
+
+            if(_supabase) {
+                try { 
+                    // CRITICAL RESOLUTION: Supabase Payload validation mismatch bypassed safely
+                    const { data, error } = await _supabase.from('posts').insert([newPost]).select(); 
+                    if (error) throw error; 
+                    if (data && data[0]) {
+                        newPost.id = data[0].id;
+                    } else {
+                        newPost.id = Date.now();
+                    }
+                } 
+                catch(err) { 
+                    console.error(err);
+                    alert("Database push failed, working on local session callback fallbacks."); 
+                    newPost.id = Date.now();
+                }
+            } else {
+                newPost.id = Date.now();
+            }
+
+            luxuryPostsData.unshift(newPost); 
+            renderPostFeedMarkup(luxuryPostsData); 
+            
+            $('upload-location').value = ''; 
+            $('upload-caption').value = ''; 
+            clearSelectedImage(); 
+            
+            publishBtn.innerText = "Publish Post"; 
+            publishBtn.disabled = false;
+            navigateTo('page-home'); 
+        }
+
+        function renderUserProfileGrid() { const grid = $('profile-portfolio-grid'); if (!grid) return; const myPosts = luxuryPostsData.filter(p => p.username === CURRENT_USER_ID); grid.innerHTML = ''; $('profile-posts-count').innerText = myPosts.length; myPosts.forEach(post => { const node = document.createElement('div'); node.className = "premium-cyber-node aspect-square shadow-lg"; node.innerHTML = post.postImg ? `<img src="${post.postImg}" class="w-full h-full object-cover">` : `<div class="p-2 text-[9px] text-zinc-300 italic flex items-center h-full justify-center">"${escapeHtml(post.caption)}"</div>`; node.onclick = () => openProfileLightbox(post.id); grid.appendChild(node); }); }
+        function updatePremiumTabIndicator(activeButton) { const indicator = $('premium-tab-indicator'); if (indicator && activeButton) { indicator.style.left = `${activeButton.offsetLeft}px`; indicator.style.width = `${activeButton.clientWidth}px`; } }
+        
+        function renderNotificationsStack(filterMode = 'all') { 
+            const container = $('notifications-stack-container'); if (!container) return; container.innerHTML = ''; 
+            document.querySelectorAll('.noti-tab-pill').forEach(p => p.classList.toggle('active-tab', p.id === `noti-tab-${filterMode}`)); 
+            const records = (filterMode === 'all') ? notificationsMockDataset : notificationsMockDataset.filter(n => n.type === filterMode); 
+            if(!records.length) { container.innerHTML = `<p class="text-zinc-600 text-center text-xs py-12">No entries.</p>`; return; } 
+            records.forEach(item => { 
+                let icon = item.type === 'like' ? 'bg-[#E50914] fa-heart' : 'bg-blue-500 fa-comment'; 
+                let sidePreview = item.postImg ? `<img src="${item.postImg}" class="w-8 h-8 object-cover rounded-lg">` : ''; 
+                container.innerHTML += `<div class="p-3.5 rounded-2xl glassmorphism border border-white/5 flex items-center justify-between gap-3" ${item.targetPostId ? `onclick="openProfileLightbox(${item.targetPostId})"` : ''}><div class="flex items-center space-x-3"><img src="${item.avatar}" class="w-9 h-9 object-cover rounded-xl"><div class="text-[11px] text-zinc-300"><span class="font-extrabold text-white">@${item.username}</span> ${item.text}</div></div>${sidePreview}</div>`; 
+            }); 
+        }
+        function filterNotifications(mode, btn) { renderNotificationsStack(mode); if(btn) updatePremiumTabIndicator(btn); }
+    </script>
+</body>
+</html>
